@@ -42,7 +42,7 @@ module.exports.setRouter = (app) => {
     */
 
     // params: email, password.
-    app.post(`${baseUrl}/login`, userController.loginFunction);
+    app.get(`${baseUrl}/login`, userController.loginFunction);
 
     /**
      * @apiGroup users
