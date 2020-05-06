@@ -26,7 +26,7 @@ let signUpFunction = (req, res) => {
 
 // start of login function 
 let loginFunction = (req, res) => {
-    
+    res.send("Success")
 }
 
 
