@@ -5,6 +5,7 @@ const response = require('./../libs/responseLib')
 const logger = require('./../libs/loggerLib');
 const validateInput = require('../libs/paramsValidationLib')
 const check = require('../libs/checkLib')
+var multer = require('multer');
 
 var Jimp = require('jimp');
 
@@ -37,74 +38,152 @@ let logout = (req, res) => {
   
 } // end of the logout function.
 
+var storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		//cb(null, '../frontend/src/assets/uploads')
+		//cb(null, '../frontend/uploads')
+		cb(null, './uploads')
+	}
+	,
+	filename: function (req, file, cb) {
+
+		var fileObj = {
+			"image/png": ".png",
+			"image/jpeg": ".jpeg",
+			"image/jpg": ".jpg",
+			"application/pdf": ".pdf"
+			// "application/msword": ".doc",
+			// "text/plain": ".txt"
+		};
+		if (fileObj[file.mimetype] == undefined) {
+			cb(new Error("file format not valid"));
+
+			// cb(null, file.fieldname + '-' + Date.now() + fileObj[file.mimetype])
+		} else {
+			cb(null, file.fieldname + '-' + Date.now() + fileObj[file.mimetype])
+		}
+	}
+})
+
+var upload = multer({
+	storage: storage
+});
+
+var uploadFile = upload.single('file')
+
+
+// const storage = multer.diskStorage({
+//   destination: function(req, file, cb) {
+//       cb(null, 'uploads/');
+//   },
+
+//   // By default, multer removes file extensions so let's add them back
+//   filename: function(req, file, cb) {
+//       cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//   }
+// });
+
+// var upload = multer({dest:'uploads/'});
+
+// var upload = multer({ dest: 'uploads/' })
+
+
 let imageProcess= (req, res) => {
 
-    let imgRaw = 'assets/download.png';
-    // let imgLogo = 'assets/nixonletterfullblock.jpg'; //a 155px x 72px logo
-    //---
-    
-    // let imgActive = 'assets/export1233.png';
-    // let imgExported = 'assets/export12.png';
-    
-    let textData = {
-      text: 'Jatin test', //the text to be rendered on the image
-      maxWidth: 225, //image width - 10px margin left - 10px margin right
-      maxHeight: 225, //logo height + margin
-      // placementX: 10, // 10px in on the x axis
-      // placementY: 1024-(72+20)-10 //bottom of the image: height - maxHeight - margin 
-      placementX: 20, // 10px in on the x axis
-      placementY: 20 //bottom of the image: height - maxHeight - margin
-    };
-    
-    //read template & clone raw image 
-    Jimp.read(imgRaw)
-    //   .then(tpl => (tpl.clone().write(imgActive)))
-    
-      //read cloned (active) image
-    //   .then(() => (Jimp.read(imgActive)))
-    
-      //combine logo into image
-      // .then(tpl => (
-      //   Jimp.read(imgLogo).then(logoTpl => {
-      //     logoTpl.opacity(0.2);
-      //     return tpl.composite(logoTpl, 512-75, 512, [Jimp.BLEND_DESTINATION_OVER, 0.2, 0.2]);
-      //   })
-      // ))
-    
-      //load font	
-      .then(imgRaw => (
-        Jimp.loadFont(Jimp.FONT_SANS_32_BLACK).then(font => ([imgRaw, font]))
-      ))
-        
-      //add footer text
-      .then(data => {
-    
-        imgRaw = data[0];
-        font = data[1];
-      
-        return imgRaw.print(font, textData.placementX, textData.placementY, {
-          text: textData.text,
-          alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-          alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
-        }, textData.maxWidth, textData.maxHeight);
-      })
-    
-      //export image
-    //   .then(imgRaw => (imgRaw.quality(100).write(imgExported)))
-    
-      //log exported filename
-      .then(async(imgRaw) => { 
-        var a = await imgRaw.getBase64Async('image/jpeg')
-        res.send(a);
-        // console.log('exported file: ' + imgExported);
-      })
+  // let upload2 = multer({ storage: storage }).single('profile_pic');
 
-      
+  uploadFile(req, res, (err) => {
     
-      //catch errors
-      .catch(err => {
-        console.error(err);
-      });
+    if (err instanceof multer.MulterError) {
+      console.log("nijnhjb")
+      console.log(err);
+    }
+    else if (err) {
+      console.log(err);
+      res.json({ "status": 500, "message": "Only PDF, JPG,JPEG, PNG file types are allowed" })
+      res.status(500).send()
+    }
+    else {
+  
+    
+  // console.log(req)
+      console.log(req.file.path)
+      let imgRaw = req.file.path;
+      // let imgLogo = 'assets/nixonletterfullblock.jpg'; //a 155px x 72px logo
+      //---
+      
+      // let imgActive = 'assets/export1233.png';
+      // let imgExported = 'assets/export12.png';
+      
+      let textData = {
+        text: 'Jatin test', //the text to be rendered on the image
+        maxWidth: 225, //image width - 10px margin left - 10px margin right
+        maxHeight: 225, //logo height + margin
+        // placementX: 10, // 10px in on the x axis
+        // placementY: 1024-(72+20)-10 //bottom of the image: height - maxHeight - margin 
+        placementX: 20, // 10px in on the x axis
+        placementY: 20 //bottom of the image: height - maxHeight - margin
+      };
+      
+      //read template & clone raw image 
+      Jimp.read(imgRaw)
+      //   .then(tpl => (tpl.clone().write(imgActive)))
+      
+        //read cloned (active) image
+      //   .then(() => (Jimp.read(imgActive)))
+      
+        //combine logo into image
+        // .then(tpl => (
+        //   Jimp.read(imgLogo).then(logoTpl => {
+        //     logoTpl.opacity(0.2);
+        //     return tpl.composite(logoTpl, 512-75, 512, [Jimp.BLEND_DESTINATION_OVER, 0.2, 0.2]);
+        //   })
+        // ))
+      
+        //load font	
+        
+        .then(imgRaw => (
+         
+          Jimp.loadFont('./app/controllers/fonts/abc2.fnt').then(font => ([imgRaw, font]))
+        ))
+          
+        //add footer text
+        .then(data => {
+      
+          imgRaw = data[0];
+          font = data[1];
+        
+          return imgRaw.print(font, textData.placementX, textData.placementY, {
+            text: textData.text,
+            alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+          }, textData.maxWidth, textData.maxHeight);
+        })
+      
+        //export image
+      //   .then(imgRaw => (imgRaw.quality(100).write(imgExported)))
+      
+        //log exported filename
+        .then(async(imgRaw) => { 
+          var a = await imgRaw.getBase64Async('image/jpeg')
+          res.send({"img":a});
+          var fs = require('fs');
+          var filePath = req.file.path; 
+          fs.unlinkSync(filePath);
+         
+          // console.log('exported file: ' + imgExported);
+        })
+  
+        
+      
+        //catch errors
+        .catch(err => {
+          console.error(err);
+        });
+  
+      }
+  })
+
     
 
 
@@ -169,6 +248,6 @@ module.exports = {
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
     logout: logout,
-    imageProcess:imgProcess2
+    imageProcess:imageProcess
 
 }// end exports

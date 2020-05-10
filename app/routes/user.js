@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const userController = require("./../../app/controllers/userController");
 const appConfig = require("./../../config/appConfig")
+var multer = require('multer');
+var upload = multer({dest:'uploads/'});
 
 module.exports.setRouter = (app) => {
 
@@ -66,6 +68,6 @@ module.exports.setRouter = (app) => {
     // auth token params: userId.
     app.post(`${baseUrl}/logout`, userController.logout);
 
-    app.get(`${baseUrl}/imageProcess`, userController.imageProcess)
+    app.post(`${baseUrl}/imageProcess` ,userController.imageProcess)
 
 }
