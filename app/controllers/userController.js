@@ -12,6 +12,9 @@ var Jimp = require('jimp');
 var fs = require('fs')
 var path = require('path')
 var Canvas = require('canvas')
+const cron = require('node-cron');
+
+const crypto = require("crypto");
 
 /* Models */
 const UserModel = mongoose.model('User')
@@ -88,32 +91,36 @@ var uploadFile = upload.single('file')
 // var upload = multer({ dest: 'uploads/' })
 
 
-let imageProcess= (req, res) => {
+let imageProcessOld_bkp= (req, res) => {
 
   // let upload2 = multer({ storage: storage }).single('profile_pic');
 
   uploadFile(req, res, (err) => {
     
-    if (err instanceof multer.MulterError) {
-      console.log("nijnhjb")
-      console.log(err);
-    }
-    else if (err) {
-      console.log(err);
-      res.json({ "status": 500, "message": "Only PDF, JPG,JPEG, PNG file types are allowed" })
-      res.status(500).send()
-    }
-    else {
+    // if (err instanceof multer.MulterError) {
+    //   console.log("nijnhjb")
+    //   console.log(err);
+    // }
+    // else if (err) {
+    //   console.log(err);
+    //   res.json({ "status": 500, "message": "Only PDF, JPG,JPEG, PNG file types are allowed" })
+    //   res.status(500).send()
+    // }
+    // else {
   
     
   // console.log(req)
-      console.log(req.file.path)
-      let imgRaw = req.file.path;
-      // let imgLogo = 'assets/nixonletterfullblock.jpg'; //a 155px x 72px logo
+      // console.log(req.file.path)
+      let imgRaw = 'assets/download.png';
+      let imgLogo = 'assets/download111.jpg'; //a 155px x 72px logo
       //---
-      
-      // let imgActive = 'assets/export1233.png';
-      // let imgExported = 'assets/export12.png';
+      // let  idClone = crypto.randomBytes(16).toString("hex");
+      // let imgActive = 'clone/'+idClone+'.png';
+
+      // let dt= new Date();
+      let  id = crypto.randomBytes(16).toString("hex");
+      let imgActive = 'clone/'+id+'.png';
+      let imgExported = 'exports/'+id+'.png';
       
       let textData = {
         text: 'Jatin test', //the text to be rendered on the image
@@ -127,18 +134,18 @@ let imageProcess= (req, res) => {
       
       //read template & clone raw image 
       Jimp.read(imgRaw)
-      //   .then(tpl => (tpl.clone().write(imgActive)))
+        .then(tpl => (tpl.clone().write(imgActive)))
       
         //read cloned (active) image
-      //   .then(() => (Jimp.read(imgActive)))
+        .then(() => (Jimp.read(imgActive)))
       
         //combine logo into image
-        // .then(tpl => (
-        //   Jimp.read(imgLogo).then(logoTpl => {
-        //     logoTpl.opacity(0.2);
-        //     return tpl.composite(logoTpl, 512-75, 512, [Jimp.BLEND_DESTINATION_OVER, 0.2, 0.2]);
-        //   })
-        // ))
+        .then(tpl => (
+          Jimp.read(imgLogo).then(logoTpl => {
+            logoTpl.opacity(1);
+            return tpl.composite(logoTpl, 110, 110, [Jimp.BLEND_DESTINATION_OVER, 1, 1]);
+          })
+        ))
       
         //load font	
         
@@ -161,61 +168,47 @@ let imageProcess= (req, res) => {
         })
       
         //export image
-      //   .then(imgRaw => (imgRaw.quality(100).write(imgExported)))
-      
-        //log exported filename
-        .then(async(imgRaw) => { 
-          var a = await imgRaw.getBase64Async('image/jpeg')
-          res.send({"img":a});
-          var fs = require('fs');
-          var filePath = req.file.path; 
-          fs.unlinkSync(filePath);
-         
-          // console.log('exported file: ' + imgExported);
-        })
-  
+        .then(imgRaw => (
+          imgRaw.quality(100).write(imgExported)
+          
+          ))
+
+          .then(data=>{
+            fs.unlink(imgActive)
+            // setTimeout(() => {
+            //   fs.unlinkSync(imgExported)
+            // }, 1000*60);
+
+            res.send('/uploads/'+id+'.png')
+          })
         
       
+        //log exported filename
+        // .then(async(imgRaw) => {
+
+          // var a = await imgRaw.getBase64Async('image/jpeg')
+          // res.send({"img":a});
+          // var fs = require('fs');
+          // var filePath = req.file.path; 
+          // fs.unlinkSync(filePath);
+         
+          // console.log('exported file: ' + imgExported);
+        // })
+     
         //catch errors
         .catch(err => {
           console.error(err);
         });
   
-      }
+      // }
   })
-
-    
-
-
-    // TruckModel.find()
-    //     .select('-__v -_id')
-    //     .lean()
-    //     .exec((err, result) => {
-    //         if (err) {
-    //             console.log(err)
-    //             logger.error(err.message, 'Truck Controller: getAll', 10)
-    //             let apiResponse = response.generate(true, 'Failed To Find ', 500, null)
-    //             res.send(apiResponse)
-    //         }
-    //         else if (check.isEmpty(result)) {
-    //             logger.error('null', 'Truck Controller: getAll', 10)
-    //             let apiResponse = response.generate(true, 'No Truck found', 500, null)
-    //             res.send(apiResponse)
-    //         }
-    //         else {
-
-    //             let apiResponse = response.generate('false', 'All Details', 200, result)
-
-    //             console.log(apiResponse)
-    //             console.log(apiResponse.data[0].sentRequests)
-    //             res.send(apiResponse);
-    //         }
-    //     })
   
 }
 
 
-let imgProcess2=(req,res)=>{
+
+
+let imgProcessOld_Canvas=(req,res)=>{
   function fontFile (name) {
     return path.join(__dirname, '/fonts/', name)
   }
@@ -242,12 +235,117 @@ let imgProcess2=(req,res)=>{
   canvas.createJPEGStream().pipe(fs.createWriteStream( 'assets/download111.jpg'))
 }
 
+let imageProcess= (req, res) => {  
+
+  uploadFile(req, res, (err) => {
+    
+      let imgRaw = 'assets/download.png';
+      let imgLogo = 'assets/downloadlogo.png'; //a 155px x 72px logo
+
+      let  id = crypto.randomBytes(16).toString("hex");
+      let imgActive = 'clone/'+id+'.png';
+      let imgExported = 'exports/'+id+'.png';
+      
+      let textData = {
+        text: req.body.name, //the text to be rendered on the image
+        maxWidth: 225, //image width - 10px margin left - 10px margin right
+        maxHeight: 225, //logo height + margin
+        // placementX: 10, // 10px in on the x axis
+        // placementY: 1024-(72+20)-10 //bottom of the image: height - maxHeight - margin 
+        placementX: 20, // 10px in on the x axis
+        placementY: 20 //bottom of the image: height - maxHeight - margin
+      };
+      
+      //read template & clone raw image 
+      Jimp.read(imgRaw)
+        .then(tpl => (tpl.clone().write(imgActive)))
+      
+        //read cloned (active) image
+        .then(() => (Jimp.read(imgActive)))
+      
+        //combine logo into image
+        .then(tpl => (
+          Jimp.read(imgLogo).then(logoTpl => {
+            logoTpl.opacity(1);
+            return tpl.composite(logoTpl, 50, 50, [Jimp.BLEND_DESTINATION_OVER, 1, 1]);
+          })
+        ))
+      
+        //load font	
+        
+        .then(imgRaw => (
+         
+          Jimp.loadFont('./app/controllers/fonts/abc2.fnt').then(font => ([imgRaw, font]))
+        ))
+          
+        //add footer text
+        .then(data => {
+      
+          imgRaw = data[0];
+          font = data[1];
+        
+          return imgRaw.print(font, textData.placementX, textData.placementY, {
+            text: textData.text,
+            alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+          }, textData.maxWidth, textData.maxHeight);
+        })
+      
+        //export image
+        .then(imgRaw => (
+          imgRaw.quality(100).write(imgExported)
+          
+          ))
+
+          .then(data=>{
+            fs.unlink(imgActive)
+
+            //Call this if required to delete the image automatically after 24 hours
+            // setTimeout(() => {
+            //   fs.unlinkSync(imgExported)
+            // }, 1000*60*60*24);
+
+            res.send('/uploads/'+id+'.png')
+          })
+
+        //catch errors
+        .catch(err => {
+          console.error(err);
+        });
+  })
+  
+}
+
+let cronJobs= (req, res) => {
+
+ 
+  cron.schedule('23 * * * *', function() {
+   
+    console.log("Cron Running")
+    fs.readdirSync('./exports').forEach(function (file) {      
+      fs.stat('./exports/'+file, (err,stats)=>{   
+        var OneDay = new Date().getTime() + (1 * 1 * 60 * 60 * 1000)
+        if(OneDay>stats.birthtime){        
+          // fs.unlink('./exports/'+file)
+          fs.unlink('./exports/'+file, err => {
+            if (err) throw err;
+            console.log("Exported images succesfully deleted");
+          });
+        }
+      })
+    });
+
+});
+
+}
+
 
 module.exports = {
 
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
     logout: logout,
-    imageProcess:imageProcess
+    imageProcess:imageProcess,
+    startCron:cronJobs
 
 }// end exports

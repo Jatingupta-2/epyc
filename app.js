@@ -27,7 +27,10 @@ app.use(globalErrorMiddleware.globalErrorHandler);
 
 app.use(express.static(path.join(__dirname, 'client')));
 
-app.use('/exported-images', express.static('assets'));
+
+app.use('/exported-images', express.static(path.join(__dirname, 'assets')));
+app.use('/uploads', express.static('exports'))
+
 
 
 const modelsPath = './app/models';
@@ -42,6 +45,8 @@ app.all('*', function(req, res, next) {
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     next();
 });
+
+
 
 //Bootstrap models
 fs.readdirSync(modelsPath).forEach(function (file) {
