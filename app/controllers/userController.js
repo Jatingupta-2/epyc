@@ -324,7 +324,7 @@ let cronJobs= (req, res) => {
     console.log("Cron Running")
     fs.readdirSync('./exports').forEach(function (file) {      
       fs.stat('./exports/'+file, (err,stats)=>{   
-        var OneDay = new Date().getTime() + (1 * 1 * 60 * 60 * 1000)
+        var OneDay = new Date().getTime() + (1 * 24 * 60 * 60 * 1000)
         if(OneDay>stats.birthtime){        
           // fs.unlink('./exports/'+file)
           fs.unlink('./exports/'+file, err => {
