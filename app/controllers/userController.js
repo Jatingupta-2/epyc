@@ -319,7 +319,7 @@ let imageProcess= (req, res) => {
 let cronJobs= (req, res) => {
 
  
-  cron.schedule('* * * * *', function() {
+  cron.schedule('0 * * * *', function() {
    
     console.log("Cron Running")
     fs.readdirSync('./exports').forEach(function (file) {      
