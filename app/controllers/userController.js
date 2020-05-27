@@ -324,14 +324,29 @@ let cronJobs= (req, res) => {
     console.log("Cron Running")
     fs.readdirSync('./exports').forEach(function (file) {      
       fs.stat('./exports/'+file, (err,stats)=>{   
-        var OneDay = new Date().getTime() + (1 * 24 * 60 * 60 * 1000)
-        if(OneDay<stats.birthtime){        
-          // fs.unlink('./exports/'+file)
+        var OneDay = new Date().getTime() - (1 * 24 * 60 * 60 * 1000)
+        // console.log(OneDay)
+        // console.log(stats.birthtime)
+        // if(OneDay<stats.birthtime){ 
+       
+        //   console.log("Early not delete")
+        //      }
+        // else 
+        if(OneDay>stats.birthtime){   
+          // console.log("Late pls delete")
+             // fs.unlink('./exports/'+file)
           fs.unlink('./exports/'+file, err => {
             if (err) throw err;
-            console.log("Exported images succesfully deleted");
+            console.log("Exported image succesfully deleted");
           });
-        }
+           }
+        // if(OneDay<stats.birthtime){        
+        //   // fs.unlink('./exports/'+file)
+        //   fs.unlink('./exports/'+file, err => {
+        //     if (err) throw err;
+        //     console.log("Exported images succesfully deleted");
+        //   });
+        // }
       })
     });
 
