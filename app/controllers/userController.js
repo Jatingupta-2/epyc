@@ -246,8 +246,8 @@ let imageProcess= (req, res) => {
 
   uploadFile(req, res, (err) => {
     
-      let imgRaw = 'assets/download.png';
-      let imgLogo = 'assets/downloadlogo.png'; //a 155px x 72px logo
+      let imgRaw = 'assets/abstract.jpg';
+      let imgLogo = 'assets/character.png'; //a 155px x 72px logo
 
       let  id = crypto.randomBytes(16).toString("hex");
       let imgActive = 'clone/'+id+'.png';
@@ -255,11 +255,11 @@ let imageProcess= (req, res) => {
       
       let textData = {
         text: req.body.name, //the text to be rendered on the image
-        maxWidth: 225, //image width - 10px margin left - 10px margin right
-        maxHeight: 225, //logo height + margin
+        maxWidth: 625, //image width - 10px margin left - 10px margin right
+        maxHeight: 625, //logo height + margin
         // placementX: 10, // 10px in on the x axis
         // placementY: 1024-(72+20)-10 //bottom of the image: height - maxHeight - margin 
-        placementX: 20, // 10px in on the x axis
+        placementX: 80, // 10px in on the x axis
         placementY: 20 //bottom of the image: height - maxHeight - margin
       };
       
@@ -273,7 +273,7 @@ let imageProcess= (req, res) => {
         //combine logo into image
         .then(tpl => (
           Jimp.read(imgLogo).then(logoTpl => {
-            logoTpl.opacity(1);
+            logoTpl.opacity(0.7);
             return tpl.composite(logoTpl, 50, 50, [Jimp.BLEND_DESTINATION_OVER, 1, 1]);
           })
         ))
@@ -282,7 +282,7 @@ let imageProcess= (req, res) => {
         
         .then(imgRaw => (
          
-          Jimp.loadFont('./app/controllers/fonts/abc2.fnt').then(font => ([imgRaw, font]))
+          Jimp.loadFont('./app/controllers/fonts/Wreckout.fnt').then(font => ([imgRaw, font]))
         ))
           
         //add footer text
