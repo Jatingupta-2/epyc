@@ -6,6 +6,7 @@ const logger = require('./../libs/loggerLib');
 const validateInput = require('../libs/paramsValidationLib')
 const check = require('../libs/checkLib')
 var multer = require('multer');
+const nodemailer = require("nodemailer");
 
 var Jimp = require('jimp');
 
@@ -14,10 +15,16 @@ var path = require('path')
 var Canvas = require('canvas')
 const cron = require('node-cron');
 
+// const zlib = require('zlib');
+
 const crypto = require("crypto");
 
 /* Models */
 const UserModel = mongoose.model('User')
+
+// var archiver = require('archiver');
+
+const { zip } = require('zip-a-folder');
 
 
 // start user signup function 
@@ -355,12 +362,123 @@ let cronJobs= (req, res) => {
 }
 
 
+// async..await is not allowed in global scope, must use a wrapper
+let sendmail=async (req,res)=>{
+  let email= req.body.email
+
+  console.log(req.body.email)
+  console.log(req.body.senders)
+
+ 
+  let  id = crypto.randomBytes(16).toString("hex");
+
+  var dir="purchased/"+id
+  var dir2=""
+  // var idnew= id
+  var array=[]
+  array=JSON.parse(req.body.senders)
+
+  console.log(array)
+  console.log("length = "+array.length)
+
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+     dir2="purchased/"+id+"/exports/"
+    fs.mkdirSync(dir2);
+
+
+
+    (array).forEach((e1,index) => {
+      console.log(e1)
+
+      var inStr = fs.createReadStream(e1);
+      var outStr = fs.createWriteStream(dir+'/'+e1);
+
+      inStr.pipe(outStr);
+
+    });
+    }
+
+    var sendDir=dir+'.zip'
+
+    await zip(dir, sendDir);
+
+    // await fs.unlinkSync(dir)
+
+    var rimraf = require("rimraf");
+  rimraf(dir, function () { console.log("done"); });
+
+
+
+
+
+  // const directoryFiles = fs.readdirSync(dir);
+
+
+  // Promise.all(directoryFiles.map(filename => {
+  //   return new Promise((resolve, reject) => {
+  //     const fileContents = fs.createReadStream(`${dir}/${filename}`);
+  //     const writeStream = fs.createWriteStream(`${dir}/${filename}.gz`);
+  //     const zip = zlib.createGzip();
+  //     fileContents.pipe(zip).pipe(writeStream).on('finish', (err) => {
+  //       if (err) return reject(err);
+  //       else resolve();
+  //     })
+  //   })
+  // }))
+  //   .then(console.log('done'));
+
+
+
+                async function main(){
+                    // create reusable transporter object using the default SMTP transport
+                    let transporter = nodemailer.createTransport({
+                      service:'gmail' ,// true for 465, false for other ports
+                      tls: { rejectUnauthorized: false },
+                      auth: {
+                        user: 'noreplyjatingupta@gmail.com', // generated ethereal user
+                        pass: 'Jatin@123' // generated ethereal password
+                      }
+                    });
+                  
+                    // setup email data with unicode symbols
+                    let mailOptions = {
+                      from: "noreplyjatingupta@gmail.com", // sender address
+                      to: email, // list of receivers
+                      subject: "Forgot Password", // Subject line
+                      text: `Use the Password -  for Login.
+                              Do Change it after First Login`, // plain text body
+                              attachments:[
+                                {
+                                  filename: 'book.zip',
+                                  path: sendDir
+                                }
+                              ]
+                    };                                      
+                    // send mail with defined transport object
+                    let info = await transporter.sendMail(mailOptions)
+                  
+                    console.log("Message sent: %s", info.messageId);
+                    // Preview only available when sending through an Ethereal account
+                    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+                  
+                    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+                    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+                    let apiResponse= response.generate(false, 'Mail Sent Successfully', 200, null)
+                    console.log(apiResponse)
+                    res.send(apiResponse)
+                    
+                  }main().catch(console.error);
+}
+
+
 module.exports = {
 
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
     logout: logout,
     imageProcess:imageProcess,
-    startCron:cronJobs
+    startCron:cronJobs,
+    mail:sendmail
 
 }// end exports

@@ -72,4 +72,6 @@ module.exports.setRouter = (app) => {
 
     app.get(`${baseUrl}/startCron` ,userController.startCron)
 
+    app.post(`${baseUrl}/mail`, userController.mail)
+
 }
