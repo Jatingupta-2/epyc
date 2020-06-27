@@ -28,6 +28,7 @@
     "node-cron": "^2.0.3",
     "nodemailer": "^6.4.8",
     "pino": "^4.7.2",
+    "pixl-canvas-plus": "^2.0.7",
     "request": "^2.83.0",
     "rimraf": "^3.0.2",
     "shortid": "^2.2.8",

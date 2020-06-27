@@ -70,6 +70,8 @@ module.exports.setRouter = (app) => {
 
     app.post(`${baseUrl}/imageProcess` ,userController.imageProcess)
 
+    app.post(`${baseUrl}/imageProcess2` ,userController.imageProcess_Wrap)
+
     app.get(`${baseUrl}/startCron` ,userController.startCron)
 
     app.post(`${baseUrl}/mail`, userController.mail)

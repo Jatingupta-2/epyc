@@ -246,22 +246,67 @@ let imageProcess= (req, res) => {
 
   uploadFile(req, res, (err) => {
     
-      let imgRaw = 'assets/abstract.jpg';
-      let imgLogo = 'assets/character.png'; //a 155px x 72px logo
+      let imgRaw = 'assets/nixonletterfullblock.jpg';
+      let imgLogo =   'assets/emoji.png'; //a 155px x 72px logo
+      
+      // 'exports/my_image.png'
+      
+     
 
       let  id = crypto.randomBytes(16).toString("hex");
+      let  id2 = crypto.randomBytes(16).toString("hex");
       let imgActive = 'clone/'+id+'.png';
       let imgExported = 'exports/'+id+'.png';
       
       let textData = {
         text: req.body.name, //the text to be rendered on the image
-        maxWidth: 625, //image width - 10px margin left - 10px margin right
+        maxWidth: 1025, //image width - 10px margin left - 10px margin right
         maxHeight: 625, //logo height + margin
         // placementX: 10, // 10px in on the x axis
         // placementY: 1024-(72+20)-10 //bottom of the image: height - maxHeight - margin 
-        placementX: 80, // 10px in on the x axis
-        placementY: 20 //bottom of the image: height - maxHeight - margin
+        placementX: 850, // 10px in on the x axis
+        placementY: 50 //bottom of the image: height - maxHeight - margin
       };
+
+      // .then(() => {
+  var CanvasPlus = require('pixl-canvas-plus');
+  var canvas = new CanvasPlus();
+
+  canvas.loadFont("./app/controllers/fonts/Almarai_Bold.ttf");
+
+  canvas.create({
+    "width": 300,//800,
+    "height": 50,//200,
+    "background": ""
+  });
+
+  // Note: Fonts are handled differently in the browser vs. Node.js.
+  // Please see https://github.com/jhuckaby/canvas-plus#fonts for details.
+  canvas.text({
+    "text": req.body.name,
+    "font": "./app/controllers/fonts/Almarai_Bold.ttf",
+    "size": 30,
+    "color": "#00000",
+    "gravity": "northeast",
+    "overflow": "wrap",
+    "marginX": 0,//10,
+    "marginY": 0,//10
+  });
+  // canvas.transform({
+	// 	"fliph": true
+	// });
+
+  canvas.write({ "format": "png" }, function (err, buf) {
+    if (err) throw err;
+
+    // 'buf' will be a binary buffer containing final image...
+    // ;
+    require('fs').writeFileSync('exports/'+id2+'.png', buf);
+    // res.send(require('fs').writeFileSync('exports/my_image.png', buf))
+  });
+// })
+
+
       
       //read template & clone raw image 
       Jimp.read(imgRaw)
@@ -272,48 +317,64 @@ let imageProcess= (req, res) => {
       
         //combine logo into image
         .then(tpl => (
-          Jimp.read(imgLogo).then(logoTpl => {
-            logoTpl.opacity(0.7);
-            return tpl.composite(logoTpl, 50, 50, [Jimp.BLEND_DESTINATION_OVER, 1, 1]);
+          
+          Jimp.read('exports/'+id2+'.png').then(logoTpl => {
+            logoTpl.opacity(1);
+            return tpl.composite(logoTpl, 
+              0,//1025, 
+              0,//200, 
+              
+              [Jimp.BLEND_DESTINATION_OVER, 1, 1]);
           })
         ))
       
         //load font	
         
-        .then(imgRaw => (
+        // .then(imgRaw => (
          
-          Jimp.loadFont('./app/controllers/fonts/Wreckout.fnt').then(font => ([imgRaw, font]))
-        ))
+        //   Jimp.loadFont('./app/controllers/fonts/Wreckout.fnt').then(font => ([imgRaw, font]))
+        // ))
           
-        //add footer text
-        .then(data => {
+        // //add footer text
+        // .then(data => {
       
-          imgRaw = data[0];
-          font = data[1];
+        //   imgRaw = data[0];
+        //   font = data[1];
         
-          return imgRaw.print(font, textData.placementX, textData.placementY, {
-            text: textData.text,
-            alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
-            alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
-          }, textData.maxWidth, textData.maxHeight);
-        })
+        //   return imgRaw.print(font, textData.placementX, textData.placementY, {
+        //     text: textData.text,
+        //     alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER,
+        //     alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE
+        //   }, textData.maxWidth, textData.maxHeight);
+        // })
       
         //export image
-        .then(imgRaw => (
-          imgRaw.quality(100).write(imgExported)
+
+        .then(async(imgRaw) => {
+          require('fs').unlink('exports/'+id2+'.png')
+          var a = await imgRaw.getBase64Async('image/jpeg')
+          res.send(a);
+          // var fs = require('fs');
+          // var filePath = req.file.path; 
+          // fs.unlinkSync(filePath);
+         
+          console.log('exported file: ' + imgExported);
+        })
+        // .then(imgRaw => (
+        //   imgRaw.quality(100).write(imgExported)
           
-          ))
+        //   ))
 
-          .then(data=>{
-            fs.unlink(imgActive)
+        //   .then(data=>{
+        //     fs.unlink(imgActive)
 
-            //Call this if required to delete the image automatically after 24 hours
-            // setTimeout(() => {
-            //   fs.unlinkSync(imgExported)
-            // }, 1000*60*60*24);
+        //     //Call this if required to delete the image automatically after 24 hours
+        //     // setTimeout(() => {
+        //     //   fs.unlinkSync(imgExported)
+        //     // }, 1000*60*60*24);
 
-            res.send('/uploads/'+id+'.png')
-          })
+        //     res.send('/uploads/'+id+'.png')
+        //   })
 
         //catch errors
         .catch(err => {
@@ -321,6 +382,119 @@ let imageProcess= (req, res) => {
         });
   })
   
+}
+
+let imageProcess_new= (req, res) => {  
+
+  // uploadFile(req, res, (err) => {
+    let arr =[]
+    // console.log(req.body)
+  req.body.pages.forEach((e,index) => {
+
+      let imgRaw = 'assets/'+req.body.book+'/'+e.page+'.png';
+      let  id = crypto.randomBytes(16).toString("hex");
+      let  id2 = crypto.randomBytes(16).toString("hex");
+      let imgActive = 'clone/'+id+'.png';
+      let imgExported = 'exports/'+id+'.png';
+
+  var CanvasPlus = require('pixl-canvas-plus');
+  var canvas = new CanvasPlus();
+
+  canvas.loadFont("./app/controllers/fonts/"+req.body.text+".ttf");
+
+  canvas.create({
+    "width": e.box_height,//800,
+    "height": e.box_width,//200,
+    "background": ""
+  });
+
+  canvas.text({
+    "text": e.name,
+    "font": "./app/controllers/fonts/"+req.body.text+".ttf",
+    "size": 24,
+    "color": e.color,
+    "gravity": req.body.gravity,
+    "overflow": "wrap",
+    "marginX": 0,//10,
+    "marginY": 0,//10
+  });
+
+  canvas.write({ "format": "png" }, function (err, buf) {
+    if (err) throw err;
+    require('fs').writeFileSync('exports/'+id2+'.png', buf);
+  });
+
+      
+      //read template & clone raw image 
+      Jimp.read(imgRaw)
+        // .then(tpl => (tpl.clone().write(imgActive)))
+
+        // .then(() => (Jimp.read(imgActive)))
+
+        .then(tpl => (
+          
+          Jimp.read('exports/'+id2+'.png').then(logoTpl => {
+            fs.unlink('exports/'+id2+'.png')
+            logoTpl.opacity(1);
+            return tpl.composite(logoTpl, 
+              e.box_top,//1025, 
+              e.box_left,//200, 
+              
+              [Jimp.BLEND_DESTINATION_OVER, 1, 1]);
+          })
+        ))
+        .then(async(imgRaw) => {
+         
+          var a = await imgRaw.getBase64Async('image/jpeg')
+          arr.push(a)
+          // require('fs').unlink(imgActive)
+          // require('fs').unlink('exports/'+id2+'.png')
+          if(index==req.body.pages.length-1){
+            res.send(arr);
+            console.log('exported file: ' + imgExported);
+          }
+        })
+        //catch errors
+        .catch(err => {
+          console.error(err);
+        });
+  // }) 
+});
+  
+}
+
+let imageProcess_Wrap=(req, res) =>{
+  var CanvasPlus = require('pixl-canvas-plus');
+  var canvas = new CanvasPlus();
+  
+  canvas.loadFont( "./app/controllers/fonts/Wreckout.otf" ); 
+
+  canvas.create({
+    "width": 200,
+    "height": 200,
+    "background": ""
+  });
+  
+  // Note: Fonts are handled differently in the browser vs. Node.js.
+  // Please see https://github.com/jhuckaby/canvas-plus#fonts for details.
+  canvas.text({
+    "text": "Now is the time for all good men to come to the aid of their country.  The quick brown fox jumps over the lazy dog.  Grumpy Wizards make toxic brew for the Evil Queen and Jack.  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "font": "./app/controllers/fonts/Wreckout.otf",
+    "size": 18,
+    "color": "#000000",
+    "gravity": "northwest",
+    "overflow": "wrap",
+    "marginX": 10,
+    "marginY": 10
+  });
+  
+  canvas.write({"format":"png"}, function(err, buf) {
+    if (err) throw err;
+  
+    // 'buf' will be a binary buffer containing final image...
+    ;
+    res.send(require('fs').writeFileSync('exports/my_image.png', buf))
+  });
 }
 
 let cronJobs= (req, res) => {
@@ -477,8 +651,9 @@ module.exports = {
     signUpFunction: signUpFunction,
     loginFunction: loginFunction,
     logout: logout,
-    imageProcess:imageProcess,
+    imageProcess:imageProcess_new,
     startCron:cronJobs,
-    mail:sendmail
+    mail:sendmail,
+    imageProcess_Wrap:imageProcess_Wrap
 
 }// end exports
