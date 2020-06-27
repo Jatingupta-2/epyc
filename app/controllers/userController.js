@@ -398,17 +398,17 @@ let imageProcess_new= (req, res) => {
       let imgExported = 'exports/'+id+'.png';
 
   var CanvasPlus = require('pixl-canvas-plus');
-  var canvas = new CanvasPlus();
+  var canvasp = new CanvasPlus();
 
-  canvas.loadFont("./app/controllers/fonts/"+req.body.text+".ttf");
+  canvasp.loadFont("./app/controllers/fonts/"+req.body.text+".ttf");
 
-  canvas.create({
+  canvasp.create({
     "width": e.box_height,//800,
     "height": e.box_width,//200,
     "background": ""
   });
 
-  canvas.text({
+  canvasp.text({
     "text": e.name,
     "font": "./app/controllers/fonts/"+req.body.text+".ttf",
     "size": 24,
@@ -419,7 +419,7 @@ let imageProcess_new= (req, res) => {
     "marginY": 0,//10
   });
 
-  canvas.write({ "format": "png" }, function (err, buf) {
+  canvasp.write({ "format": "png" }, function (err, buf) {
     if (err) throw err;
     require('fs').writeFileSync('exports/'+id2+'.png', buf);
   });
