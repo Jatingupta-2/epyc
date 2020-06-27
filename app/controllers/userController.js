@@ -12,7 +12,7 @@ var Jimp = require('jimp');
 
 var fs = require('fs')
 var path = require('path')
-var Canvas = require('canvas')
+// var Canvas = require('canvas')
 const cron = require('node-cron');
 
 // const zlib = require('zlib');
@@ -215,32 +215,32 @@ let imageProcessOld_bkp= (req, res) => {
 
 
 
-let imgProcessOld_Canvas=(req,res)=>{
-  function fontFile (name) {
-    return path.join(__dirname, '/fonts/', name)
-  }
+// let imgProcessOld_Canvas=(req,res)=>{
+//   function fontFile (name) {
+//     return path.join(__dirname, '/fonts/', name)
+//   }
   
-  Canvas.registerFont(fontFile('ITCEDSCR.ttf'), {family: 'ITCEDSCR'})
+//   Canvas.registerFont(fontFile('ITCEDSCR.ttf'), {family: 'ITCEDSCR'})
   
-  var canvas = Canvas.createCanvas(255, 255)
-  var ctx = canvas.getContext('2d')
+//   var canvas = Canvas.createCanvas(255, 255)
+//   var ctx = canvas.getContext('2d')
   
-  var Image = Canvas.Image;
-  var img = new Image();
-  img.src = 'assets/download.png';
+//   var Image = Canvas.Image;
+//   var img = new Image();
+//   img.src = 'assets/download.png';
   
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
+//   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   
-  ctx.fillStyle = 'black';
-  ctx.textAlign = 'center';
+//   ctx.fillStyle = 'black';
+//   ctx.textAlign = 'center';
   
-  ctx.font = '8pt ITCEDSCR'
-  ctx.fillText('यह मिसिसिपी है',80, 190)
+//   ctx.font = '8pt ITCEDSCR'
+//   ctx.fillText('यह मिसिसिपी है',80, 190)
   
-  canvas.createPNGStream().pipe(fs.createWriteStream( 'assets/download111.png'))
-  canvas.createJPEGStream().pipe(fs.createWriteStream( 'assets/download111.jpg'))
-}
+//   canvas.createPNGStream().pipe(fs.createWriteStream( 'assets/download111.png'))
+//   canvas.createJPEGStream().pipe(fs.createWriteStream( 'assets/download111.jpg'))
+// }
 
 let imageProcess= (req, res) => {  
 
