@@ -394,8 +394,11 @@ let imageProcess_new= (req, res) => {
       let imgRaw = './assets/'+req.body.book+'/'+e.page+'.png';
       let  id = crypto.randomBytes(16).toString("hex");
       let  id2 = crypto.randomBytes(16).toString("hex");
-      let imgActive = 'clone/'+id+'.png';
-      let imgExported = 'exports/'+id+'.png';
+      // let imgActive = 'clone/'+id+'.png';
+      // let imgExported = 'exports/'+id+'.png';
+
+      let  img2_exp='./exports/'+id2+'.png'
+      
 
   var CanvasPlus = require('pixl-canvas-plus');
   var canvasp = new CanvasPlus();
@@ -421,7 +424,7 @@ let imageProcess_new= (req, res) => {
 
   canvasp.write({ "format": "png" }, function (err, buf) {
     if (err) throw err;
-    require('fs').writeFileSync('exports/'+id2+'.png', buf);
+    require('fs').writeFileSync(img2_exp, buf);
   });
 
       
@@ -433,7 +436,7 @@ let imageProcess_new= (req, res) => {
 
         .then(tpl => (
           
-          Jimp.read('exports/'+id2+'.png').then(logoTpl => {
+          Jimp.read(img2_exp).then(logoTpl => {
             // fs.unlink('exports/'+id2+'.png')
             logoTpl.opacity(1);
             return tpl.composite(logoTpl, 
@@ -451,7 +454,7 @@ let imageProcess_new= (req, res) => {
           // require('fs').unlink('exports/'+id2+'.png')
           if(index==req.body.pages.length-1){
             res.send(arr);
-            console.log('exported file: ' + imgExported);
+            // console.log('exported file: ' + imgExported);
           }
         })
         //catch errors
