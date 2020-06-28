@@ -391,7 +391,7 @@ let imageProcess_new= (req, res) => {
     // console.log(req.body)
   req.body.pages.forEach((e,index) => {
 
-      let imgRaw = 'assets/'+req.body.book+'/'+e.page+'.png';
+      let imgRaw = './assets/'+req.body.book+'/'+e.page+'.png';
       let  id = crypto.randomBytes(16).toString("hex");
       let  id2 = crypto.randomBytes(16).toString("hex");
       let imgActive = 'clone/'+id+'.png';
