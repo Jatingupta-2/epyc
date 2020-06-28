@@ -434,7 +434,7 @@ let imageProcess_new= (req, res) => {
         .then(tpl => (
           
           Jimp.read('exports/'+id2+'.png').then(logoTpl => {
-            fs.unlink('exports/'+id2+'.png')
+            // fs.unlink('exports/'+id2+'.png')
             logoTpl.opacity(1);
             return tpl.composite(logoTpl, 
               e.box_top,//1025, 
